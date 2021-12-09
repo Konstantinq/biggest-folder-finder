@@ -1,21 +1,25 @@
 import java.io.File;
+import java.util.HashMap;
 import java.util.concurrent.ForkJoinPool;
 
 public class Main {
+    private static char[] sizeMultipliers = {'B', 'K', 'M','G', 'T'};
 
     public static void main(String[] args) {
-
+        System.out.println(getHumanReadableSize(240640));
+        System.out.println(getSizeFromHumanReadable("235K"));
+        System.exit(0);
 
 
         String folderPath = "C:\\Users\\q6440\\OneDrive\\";
     long start = System.currentTimeMillis();
     File file = new File(folderPath);
 
-       // System.out.println(getFolderSize(file));
+
         FolderSizeCalculate calculate = new FolderSizeCalculate(file);
         ForkJoinPool pool = new ForkJoinPool();
         long size = pool.invoke(calculate);
-        System.out.println(size);
+        System.out.println(getHumanReadableSize(size));
          long duration = (System.currentTimeMillis() - start);
         System.out.println(duration + " ms");
 
@@ -31,6 +35,40 @@ public class Main {
             sum += getFolderSize(file);
         }
         return  sum;
+    }
+    public static String getHumanReadableSize(long size){
+        for (int i = 0; i < sizeMultipliers.length; i++) {
+            double value = size / Math.pow(1024, i);
+            if(value < 1024){
+                return Math.round(value) + "" + sizeMultipliers[i] + (i > 0 ? "b":"");
+            }
+        }
+        return "Very big!";
+    }
+
+    public static long getSizeFromHumanReadable(String size){
+
+       HashMap<Character,Integer> char2multiplier = getMultipliers();
+        char sizeFactor = size
+                .replaceAll("[0-9\\s+]+","")
+                .charAt(0);
+       // System.out.println(sizeFactor);
+       int multiplier = char2multiplier.get(sizeFactor);
+       long length =  multiplier * Long.valueOf(
+               size.replaceAll("[^0-9]",""
+               ));
+        return length;
+    }
+    private static HashMap<Character, Integer> getMultipliers(){
+
+        HashMap<Character,Integer> char2multiplier = new HashMap<>();
+        for (int i = 0; i < sizeMultipliers.length; i++) {
+            char2multiplier.put(
+                    sizeMultipliers[i], (int) Math.pow(1024,i)
+            );
+        }
+        return char2multiplier;
+
     }
 
 }
