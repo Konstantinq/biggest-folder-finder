@@ -1,16 +1,25 @@
 import java.io.File;
-import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        String folderPath = "C:\\Users\\q6440\\OneDrive\\Рабочий стол\\READ";
 
-        File file = new File(folderPath);
-        System.out.println(getFolderSize(file));
 
-    }
+        String folderPath = "C:\\Users\\q6440\\OneDrive\\";
+    long start = System.currentTimeMillis();
+    File file = new File(folderPath);
+
+       // System.out.println(getFolderSize(file));
+        FolderSizeCalculate calculate = new FolderSizeCalculate(file);
+        ForkJoinPool pool = new ForkJoinPool();
+        long size = pool.invoke(calculate);
+        System.out.println(size);
+         long duration = (System.currentTimeMillis() - start);
+        System.out.println(duration + " ms");
+
+}
 
     public static  long getFolderSize(File folder){
         if(folder.isFile()){
